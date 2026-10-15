@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  VOID // SENTINEL  —  Kage Landing Page Integration         ║
+  ║                                                              ║
+  ║  Implements KageLandingPage from ThreeUI exactly as the      ║
+  ║  source specifies: the authored kage.html is loaded          ║
+  ║  byte-for-exact-byte inside a sandboxed iframe              ║
+  ║  (LandingPageFrame), then the configured typography props    ║
+  ║  are injected as a stylesheet into the frame's <head>        ║
+  ║  after load — identical to how LandingPageFrame.tsx works.  ║
+  ║                                                              ║
+  ║  Props applied (from configured usage):                     ║
+  ║    headingFont="onest"          → Onest (already embedded)  ║
+  ║    bodyFont="onest"             → Onest (already embedded)  ║
+  ║    headingWeight="400"                                       ║
+  ║    bodyWeight="300"                                          ║
+  ║    primaryColor="#e0231c"       → matches kage's --vermilion ║
+  ║    headingSize={46}             → clamp root: 46px          ║
+  ║    bodySize={17}                → clamp root: 17px          ║
+  ║    headingLetterSpacing={-0.012}→ -0.012em                  ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VOID // SENTINEL — Kage Experience</title>
+  <style>
+    /* ── Shell reset — the frame fills the whole viewport ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #05070a;        /* kage's --ink, prevents flash */
+      overflow: hidden;
+    }
+
+    /* ── The frame IS the page — no chrome around it ── */
+    #kage-frame {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: #05070a;
+    }
+
+    /* ── Loading veil — fades once the frame fires its load event ── */
+    #veil {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: #05070a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      transition: opacity 0.9s cubic-bezier(.22,.61,.36,1),
+                  visibility 0.9s;
+    }
+    #veil.done {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* Kage's own preloader mark, reproduced so the shell matches */
+    .veil-mark svg { width: 44px; height: 44px; display: block; }
+    .veil-jp {
+      font-family: 'Onest', system-ui, sans-serif;
+      font-size: 12px;
+      letter-spacing: .5em;
+      color: #aab4ad;
+    }
+    .veil-bar {
+      width: min(280px, 60vw);
+      height: 1px;
+      background: rgba(223,231,224,.14);
+      position: relative;
+      overflow: hidden;
+    }
+    .veil-bar-fill {
+      position: absolute;
+      inset: 0 100% 0 0;
+      background: #dfe7e0;
+      animation: bar-fill 1.6s cubic-bezier(.65,0,.35,1) forwards;
+    }
+    @keyframes bar-fill {
+      0%   { right: 100%; }
+      60%  { right: 20%;  }
+      100% { right: 0%;   }
+    }
+  </style>
+  <!-- Onest font — used in the veil only; kage.html loads its own via fonts.css -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- ── Loading veil (shown while iframe boots) ── -->
+  <div id="veil">
+    <div class="veil-mark">
+      <svg viewBox="0 0 44 44" fill="none" aria-hidden="true">
+        <circle cx="22" cy="24" r="9.5" stroke="#e0231c" stroke-width="1.2"/>
+        <path d="M6 12h32M9.5 17h25M22 8v28" stroke="#dfe7e0" stroke-width="1.2"/>
+      </svg>
+    </div>
+    <div class="veil-jp" style="font-family:'Onest',sans-serif">影の道</div>
+    <div class="veil-bar"><div class="veil-bar-fill"></div></div>
+  </div>
+
+  <!--
+    ── The frame ─────────────────────────────────────────────────
+    The KageLandingPage source loads the canonical kage.html URL
+    byte-for-byte inside a sandboxed LandingPageFrame. We do the
+    same: allow-scripts is required for Three.js; allow-same-origin
+    allows the postMessage typography injection into contentDocument.
+
+    allow-popups-to-escape-sandbox lets any real links inside work.
+  -->
+  <iframe
+    id="kage-frame"
+    src="https://threeui.com/landing-pages/kage.html"
+    title="Kage — Where stillness reveals the unseen"
+    sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"
+    loading="eager"
+    allowfullscreen
+  ></iframe>
+
+  <!-- Return to VOID Sentinel Dashboard -->
+  <a
+    href="/"
+    id="back-pill"
+    style="
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 99;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 9999px;
+      background: rgba(5,7,10,0.85);
+      border: 1px solid rgba(223,231,224,0.18);
+      color: #dfe7e0;
+      font-family: 'Onest', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      transition: all 0.3s ease;
+    "
+    onmouseenter="this.style.borderColor='rgba(224,35,28,0.6)'; this.style.color='#fff'; this.style.transform='translateY(-2px)'"
+    onmouseleave="this.style.borderColor='rgba(223,231,224,0.18)'; this.style.color='#dfe7e0'; this.style.transform='none'"
+  >
+    <span style="color:#e0231c; font-size:14px;">←</span>
+    <span>VOID Command Center</span>
+  </a>
+
+  <script>
+    /*
+     * Typography injection — mirrors LandingPageFrame.tsx's behaviour.
+     *
+     * After the iframe loads, a <style> element is appended to its <head>
+     * that restates the page's own selectors with the configured prop values.
+     * The authored page stays byte-exact; the overrides layer on top.
+     *
+     * Props from the configured <KageLandingPage /> usage:
+     *   headingFont="onest"            → Onest is already the page's face
+     *   bodyFont="onest"               → ditto
+     *   headingWeight="400"            → matches authored h1,h2,h3
+     *   bodyWeight="300"               → matches authored body
+     *   primaryColor="#e0231c"         → matches --vermilion exactly
+     *   headingSize={46}               → top of the clamp range
+     *   bodySize={17}                  → top of the body-lg clamp range
+     *   headingLetterSpacing={-0.012}  → matches authored .display
+     */
+    const PROPS = {
+      headingFont:          'Onest',
+      headingStack:         "'Onest', system-ui, -apple-system, 'Helvetica Neue', sans-serif",
+      bodyFont:             'Onest',
+      bodyStack:            "'Onest', system-ui, -apple-system, 'Helvetica Neue', sans-serif",
+      headingWeight:        '400',
+      bodyWeight:           '300',
+      primaryColor:         '#e0231c',
+      headingSize:          46,      /* px — becomes the clamp max */
+      bodySize:             17,      /* px — becomes the clamp max for body-lg */
+      headingLetterSpacing: -0.012,  /* em */
+    };
+
+    function buildTypographyCSS(p) {
+      /* These override exactly the selectors kage.html defines, preserving
+         every responsive clamp; only the fixed values we are changing are
+         restated so nothing inadvertently clobbers authored behaviour.      */
+      return `
+/* ── KageLandingPage typography overrides ─────────────────────────────── */
+/* injected by void-kage.html after frame load, matching LandingPageFrame  */
+
+:root {
+  --vermilion: ${p.primaryColor};
+  --ember:     color-mix(in srgb, ${p.primaryColor} 80%, #fff 20%);
+}
+
+body {
+  font-family: ${p.bodyStack};
+  font-weight: ${p.bodyWeight};
+}
+
+h1, h2, h3, .display {
+  font-family: ${p.headingStack};
+  font-weight: ${p.headingWeight};
+  letter-spacing: ${p.headingLetterSpacing}em;
+}
+
+/* heading size: the authored clamp grows to headingSize at the top end */
+.h-hero {
+  font-size: clamp(26px, 3.05vw, ${p.headingSize}px);
+}
+.h-sec {
+  font-size: clamp(30px, 4.0vw, ${Math.round(p.headingSize * 1.304)}px);
+}
+
+/* body size: body-lg top end set by bodySize prop */
+.body-lg {
+  font-size: clamp(14px, 1.02vw, ${p.bodySize}px);
+}
+
+/* primary colour cascade */
+.dot,
+.eyebrow .dot                       { background: ${p.primaryColor}; box-shadow: 0 0 10px ${p.primaryColor}; }
+.nav-link.on::after                  { background: ${p.primaryColor}; }
+.les:hover .k                        { color: ${p.primaryColor}; }
+.les .bar                            { background: ${p.primaryColor}; }
+.les::before                         { background: linear-gradient(90deg, color-mix(in srgb, ${p.primaryColor} 9%, transparent), transparent 46%); }
+.sec-head .k b                       { color: ${p.primaryColor}; }
+.chip.on .num, .chip:hover .num      { color: color-mix(in srgb, ${p.primaryColor} 80%, #ff9980 20%); }
+.cta i                               { background: #dfe7e0; }
+::selection                          { background: ${p.primaryColor}; }
+`;
+    }
+
+    function injectTypography(iframe) {
+      try {
+        const doc = iframe.contentDocument;
+        if (!doc || !doc.head) return;
+        const style = doc.createElement('style');
+        style.setAttribute('data-threeui-typography', '');
+        style.textContent = buildTypographyCSS(PROPS);
+        doc.head.appendChild(style);
+      } catch (e) {
+        /* cross-origin guard — if the frame ends up truly cross-origin
+           (e.g. a future redirect), the injection silently skips and the
+           authored page renders as-is, which is still correct.            */
+        console.warn('[VOID] Typography injection skipped (cross-origin):', e.message);
+      }
+    }
+
+    const frame = document.getElementById('kage-frame');
+    const veil  = document.getElementById('veil');
+
+    frame.addEventListener('load', () => {
+      injectTypography(frame);
+      /* Give the Three.js scene a moment to start before fading the veil */
+      setTimeout(() => veil.classList.add('done'), 800);
+    });
+
+    /* Safety net: hide veil after 12 s even if load never fires
+       (slow connection, CSP blocking the frame, etc.)                      */
+    setTimeout(() => veil.classList.add('done'), 12000);
+  </script>
+</body>
+</html>

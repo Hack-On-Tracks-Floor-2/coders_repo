@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  VOID // SENTINEL  —  Kage Cyber-Deception Command Center   ║
+  ║  Crafted in the Kage Temple Aesthetic & Design System        ║
+  ║                                                              ║
+  ║  • Live 3D WebGL Kyoto Sanctuary in the background           ║
+  ║  • Onest + JetBrains Mono typography with JP accents        ║
+  ║  • Kage color tokens: Ink, Bone, Vermilion, Ember, Gold      ║
+  ║  • Chapter chips, dual-layer sliding nav, screened glows    ║
+  ║  • Styles  →  static/css/void.css                           ║
+  ║  • Logic   →  static/js/void.js                             ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VOID // SENTINEL — Autonomous Cyber-Deception Command Center</title>
+
+  <!-- ① Typography: Onest (Kage Primary), JetBrains Mono (Tech), Noto Serif JP (Calligraphy) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@300;400;600&display=swap" rel="stylesheet"/>
+
+  <!-- ② Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Onest', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+            jp: ['Noto Serif JP', 'serif'],
+          },
+          colors: {
+            kage: {
+              ink:     '#05070a',
+              ink2:    '#0a0e12',
+              bone:    '#dfe7e0',
+              boneDim: '#aab4ad',
+              muted:   '#78837c',
+              vermilion:'#e0231c',
+              ember:   '#ff5a3c',
+              gold:    '#c9a24a',
+            },
+          },
+          boxShadow: {
+            'glow-vermilion': '0 0 24px rgba(224,35,28,0.5)',
+            'glow-ember':     '0 0 20px rgba(255,90,60,0.4)',
+            'glow-violet':    '0 0 24px rgba(139,92,246,0.4)',
+            'glow-emerald':   '0 0 16px rgba(52,211,153,0.4)',
+            'glow-gold':      '0 0 16px rgba(201,162,74,0.4)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- ③ VOID + Kage Stylesheet -->
+  <link rel="stylesheet" href="/static/css/void.css"/>
+
+  <!-- ④ React 18 + ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- ⑤ Babel Standalone for in-browser JSX compilation -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body class="bg-[#05070a] font-sans text-[#dfe7e0] min-h-screen overflow-x-hidden selection:bg-[#e0231c] selection:text-white">
+
+  <!-- ── LIVE KAGE THREE.JS SANCTUARY BACKDROP ────────────────── -->
+  <iframe
+    id="kage-bg"
+    src="https://threeui.com/landing-pages/kage.html"
+    title="Kage Live 3D World"
+    sandbox="allow-scripts allow-same-origin allow-popups"
+    tabindex="-1"
+    aria-hidden="true"
+  ></iframe>
+
+  <!-- ── ATMOSPHERIC VIGNETTE & FILM GRAIN (From Kage) ────────── -->
+  <div id="vignette" aria-hidden="true"></div>
+  <div id="grain" aria-hidden="true"></div>
+
+  <!-- ── ELEGANT KAGE CURSOR FOLLOWER ────────────────────────── -->
+  <div class="cur-dot" id="cursor" aria-hidden="true"></div>
+
+  <!-- ── JAPANESE VERTICAL WATERMARK STRIP (Right edge) ───────── -->
+  <div class="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4 pointer-events-none z-20 hidden 2xl:flex select-none">
+    <span class="[writing-mode:vertical-rl] text-xs tracking-[0.55em] text-[rgba(223,231,224,0.35)] font-jp font-light">虚空 // 影の防壁</span>
+    <span class="w-[1px] h-20 bg-[rgba(223,231,224,0.12)]"></span>
+    <span class="[writing-mode:vertical-rl] text-[10px] tracking-[0.45em] text-[rgba(224,35,28,0.7)] font-jp">朱月 · 蜜罠監視</span>
+  </div>
+
+  <!-- ── REACT DASHBOARD ROOT MOUNT ─────────────────────────── -->
+  <div id="root" class="relative z-10 min-h-screen"></div>
+
+  <!-- ── VOID React Application ──────────────────────────────── -->
+  <script type="text/babel" src="/static/js/void.js"></script>
+
+  <!-- ── Interactive Cursor Follower Script ──────────────────── -->
+  <script>
+    (function() {
+      const cur = document.getElementById('cursor');
+      if (!cur) return;
+      let mx = -100, my = -100, cx = -100, cy = -100;
+      window.addEventListener('pointermove', function(e) {
+        mx = e.clientX;
+        my = e.clientY;
+      }, { passive: true });
+
+      function loop() {
+        cx += (mx - cx) * 0.22;
+        cy += (my - cy) * 0.22;
+        cur.style.transform = 'translate3d(' + cx + 'px,' + cy + 'px,0)';
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+
+      document.addEventListener('mouseover', function(e) {
+        if (e.target && (e.target.closest('button, a, input, select, [data-cursor], .card, .chip, tr, .les'))) {
+          cur.classList.add('act');
+        } else {
+          cur.classList.remove('act');
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>
