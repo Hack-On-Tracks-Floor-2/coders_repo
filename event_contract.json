@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SecurityEvent",
+  "description": "Unified Security Event Schema shared across VOID components",
+  "type": "object",
+  "required": [
+    "event_id",
+    "timestamp",
+    "path",
+    "method",
+    "attack_type",
+    "severity",
+    "risk_score",
+    "decoy_triggered",
+    "source_ip",
+    "reason",
+    "action",
+    "rule_ids",
+    "evidence",
+    "request_id"
+  ],
+  "properties": {
+    "event_id": { "type": "string", "format": "uuid" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "path": { "type": "string" },
+    "method": { "type": "string" },
+    "attack_type": {
+      "type": "string",
+      "enum": [
+        "DECOY_ACCESS",
+        "PATH_TRAVERSAL",
+        "SQL_INJECTION",
+        "COMMAND_INJECTION",
+        "REQUEST_BURST",
+        "RECONNAISSANCE",
+        "SUSPICIOUS_REQUEST",
+        "NONE"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    },
+    "risk_score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "decoy_triggered": { "type": "boolean" },
+    "source_ip": { "type": "string" },
+    "reason": { "type": "string" },
+    "action": {
+      "type": "string",
+      "enum": [
+        "SYNTHETIC_RESPONSE",
+        "ALLOW",
+        "LOG_ONLY",
+        "RATE_LIMIT",
+        "REQUEST_TEMPORARY_BLOCK",
+        "REQUIRE_ANALYST_REVIEW"
+      ]
+    },
+    "rule_ids": { "type": "array", "items": { "type": "string" } },
+    "evidence": { "type": "array", "items": { "type": "string" } },
+    "request_id": { "type": "string" }
+  },
+  "example": {
+    "event_id": "6019ed80-f521-4756-b034-a5042339b7a6",
+    "timestamp": "2026-10-15T06:13:11.431185+00:00",
+    "path": "/admin/backup.sql",
+    "method": "GET",
+    "attack_type": "DECOY_ACCESS",
+    "severity": "HIGH",
+    "risk_score": 45,
+    "decoy_triggered": true,
+    "source_ip": "127.0.0.1",
+    "reason": "Request matched configured decoy route: 'Database Backup Decoy'",
+    "action": "SYNTHETIC_RESPONSE",
+    "rule_ids": ["DECOY-001"],
+    "evidence": [
+      "Requested path: /admin/backup.sql",
+      "Matched normalized decoy: /admin/backup.sql",
+      "Template served: BACKUP_SQL_TEMPLATE"
+    ],
+    "request_id": "88556e99-b5df-442b-b60f-4901497423b1"
+  }
+}
